@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,12 +49,19 @@ public class TrianguloPascal {
             }
                
             if(numero_filas > 0)
-                for(int i = 0; i < numero_filas; i++){
-                    System.out.println(tp.generarFila(i));
-                }
+                if(numero_filas < 13) 
+                    for(int i = 0; i < numero_filas; i++)
+                        System.out.println(tp.generarFilaNewton(i));
+                else tp.generarFilasIterativo(numero_filas);
+                    
             
             System.out.println("");
             System.out.println("¿Desea generar más filas? (s/n)");
+            try {
+                respuesta = buffer.readLine();
+            } catch (IOException ex) {
+                System.err.println("Error al leer del buffer de entrada.");
+            }
         }
     }
     
@@ -66,7 +74,7 @@ public class TrianguloPascal {
         return factorial(p) / (factorial(q)*factorial(p-q));
     }
     
-    public String generarFila(int i){
+    public String generarFilaNewton(int i){
         String salida = "";
         
         for (int k = 0; k < i+1; k++) {
@@ -76,5 +84,29 @@ public class TrianguloPascal {
         return salida;
     }
     
-    
+    public void generarFilasIterativo(int i){
+        ArrayList<Integer> fila_anterior, nueva_fila;
+        
+        fila_anterior = new ArrayList();
+        nueva_fila = new ArrayList();
+        
+        for (int j = 0; j < i; j++) {
+            
+            nueva_fila.clear();
+            nueva_fila.add(1);
+            for (int k = 0; k < fila_anterior.size() - 1; k++) {
+                nueva_fila.add(fila_anterior.get(k)+fila_anterior.get(k+1));
+            }
+            
+            if(j>0)
+                nueva_fila.add(1);
+            
+            fila_anterior.clear();
+            for (int s = 0; s < nueva_fila.size(); s++) {
+                System.out.print(nueva_fila.get(s) + " ");
+                fila_anterior.add(nueva_fila.get(s));
+            }
+            System.out.println("");
+        }
+    }
 }
