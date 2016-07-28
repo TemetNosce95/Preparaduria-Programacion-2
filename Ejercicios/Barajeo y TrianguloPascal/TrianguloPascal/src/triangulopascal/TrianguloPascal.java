@@ -85,6 +85,7 @@ public class TrianguloPascal {
     }
     
     public void generarFilasIterativo(int i){
+        //La forma iterativa de resolverlo (sólo se desborda con números muy grandes).
         ArrayList<Integer> fila_anterior, nueva_fila;
         
         fila_anterior = new ArrayList();
