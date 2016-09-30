@@ -27,8 +27,8 @@ public class ClienteTCP {
             System.out.println("Enviele algo = ");
             String s = buffer.readLine();
             
-            if(s == "close") break;
-            
+            if(s.compareTo("close") == 0) break;
+            s += "\n";
             sock.getOutputStream().write(s.getBytes());
         }
         
