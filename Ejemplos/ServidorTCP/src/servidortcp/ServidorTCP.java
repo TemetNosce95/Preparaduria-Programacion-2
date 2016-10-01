@@ -94,23 +94,7 @@ public class ServidorTCP {
     void crearHiloLecturaIndividual(Socket cliente){
         if(cliente != null){
             try {
-                InputStream streamDeEntrada = cliente.getInputStream();
-                
-                Thread nuevoHilo = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        BufferedReader buffer = new BufferedReader(new InputStreamReader(streamDeEntrada));
-
-                        while(banderaIndividual){
-                            try {
-                                    System.out.println("[Desde "+ cliente.getInetAddress() + ":" + cliente.getPort()+"] = "+buffer.readLine());
-                            } catch (IOException ex) {
-                                System.err.println("Error al intentar leer del socket.");
-                            }
-                        }
-                    }
-                });
-                
+                HiloLecturaIndividual nuevoHilo = new HiloLecturaIndividual(cliente);
                 nuevoHilo.start();
             } catch (IOException ex) {
                 System.err.println("Error obteniendo el stream de lectura individual.");
@@ -133,6 +117,64 @@ public class ServidorTCP {
         }
         
         servidor.close();
+    }
+    
+    class HiloLecturaIndividual extends Thread{
+        Socket cliente;
+        InputStream streamEntrada;
+        BufferedReader buffer;
+        boolean activo;
+        
+        Object mutex = new Object();
+        
+        public HiloLecturaIndividual(Socket cliente) throws IOException {
+            this.cliente = cliente;
+            this.streamEntrada = cliente.getInputStream();
+            this.buffer = new BufferedReader(new InputStreamReader(this.streamEntrada));
+            this.activo = true;
+        }
+
+        @Override
+        public void run() {
+            while(activo){
+                try {
+                    if(this.streamEntrada.available() > 0){
+                        System.out.println("[Desde "+ cliente.getInetAddress() + ":" + cliente.getPort()+"] = "+buffer.readLine());
+                    }
+                } catch (IOException ex) {
+                    System.err.println("Error leyendo desde el socket "+this.cliente.getInetAddress()+":"+this.cliente.getPort()+".");
+                }
+            }
+        }
+
+        public Socket getCliente() {
+            return cliente;
+        }
+
+        public void setCliente(Socket cliente) {
+            this.cliente = cliente;
+        }
+
+        public InputStream getStreamEntrada() {
+            return streamEntrada;
+        }
+
+        public void setStreamEntrada(InputStream streamEntrada) {
+            this.streamEntrada = streamEntrada;
+        }
+
+        public boolean isActivo() {
+            return activo;
+        }
+
+        public void setActivo(boolean activo) {
+            synchronized(this.mutex){
+                this.activo = activo;
+            }
+        }
+        
+        
+        
     }
     
 }
