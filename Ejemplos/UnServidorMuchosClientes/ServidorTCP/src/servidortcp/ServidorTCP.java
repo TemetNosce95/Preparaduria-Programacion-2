@@ -25,14 +25,12 @@ public class ServidorTCP {
     boolean detenerHiloRecepcion = false;
     ArrayList<Socket> socketsConectados;
     
-    ArrayList<Thread> hilosLecturaSockets;
+    ArrayList<HiloLecturaIndividual> hilosLecturaSockets;
     boolean banderaIndividual = true;
-    ArrayList<Boolean> banderasLecturaClientes;
 
     public ServidorTCP() {
         this.socketsConectados = new ArrayList();
         this.hilosLecturaSockets = new ArrayList();
-        this.banderasLecturaClientes = new ArrayList();
     }
     
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -44,7 +42,23 @@ public class ServidorTCP {
         
         while(true){
             String s = bufferSOUT.readLine();
-            if(s.compareTo("close") == 0) break;
+            if(s.compareTo("cerrarServer") == 0) break;
+            else{
+                String[] trozos = s.split(":");
+                
+                if(trozos.length == 3)
+                    if(trozos[0].compareTo("enviar") == 0){
+                        int n_cliente = -1;
+                        try{n_cliente = Integer.parseInt(trozos[1]);}
+                        catch(Exception e){ System.err.println("El segundo parámetro debe ser un número entero.");}
+                        
+                        stcp.enviarACliente(n_cliente, trozos[2] + "\n");
+                    }
+                if(trozos.length == 2)
+                    if(trozos[0].compareTo("enviarTodos") == 0){
+                        stcp.enviarATodosLosCliente(trozos[1] + "\n");
+                    }
+            }
         }
         
         System.out.println("saliendo del while");
@@ -95,6 +109,7 @@ public class ServidorTCP {
         if(cliente != null){
             try {
                 HiloLecturaIndividual nuevoHilo = new HiloLecturaIndividual(cliente);
+                this.hilosLecturaSockets.add(nuevoHilo);
                 nuevoHilo.start();
             } catch (IOException ex) {
                 System.err.println("Error obteniendo el stream de lectura individual.");
@@ -111,7 +126,8 @@ public class ServidorTCP {
         detenerHiloRecepcion = true;
         
         banderaIndividual = false;
-        
+        for (HiloLecturaIndividual hilo: hilosLecturaSockets)
+            hilo.setActivo(false);
         for (Socket socket_a : socketsConectados) {
             socket_a.close();
         }
@@ -119,6 +135,19 @@ public class ServidorTCP {
         servidor.close();
     }
     
+    void enviarACliente(int nCliente, String mensaje){
+        if(!(nCliente < 0 || nCliente > (this.hilosLecturaSockets.size() - 1)) && mensaje != null){
+            HiloLecturaIndividual hiloActual = this.hilosLecturaSockets.get(nCliente);
+            hiloActual.enviarACliente(mensaje);
+        }
+        else System.err.println("El cliente especificado no existe o el mensaje a enviar es nulo.");
+    }
+    
+    void enviarATodosLosCliente(String mensaje){
+        for (int i = 0; i < this.hilosLecturaSockets.size(); i++) {
+            enviarACliente(i, mensaje);
+        }
+    }
     class HiloLecturaIndividual extends Thread{
         Socket cliente;
         InputStream streamEntrada;
@@ -173,7 +202,15 @@ public class ServidorTCP {
             }
         }
         
-        
+        void enviarACliente(String s){
+            synchronized(this.mutex){
+                try {
+                    this.cliente.getOutputStream().write(s.getBytes());
+                } catch (IOException ex) {
+                    System.err.println("Error enviando cadena al cliente.");
+                }
+            }
+        }
         
     }
     
