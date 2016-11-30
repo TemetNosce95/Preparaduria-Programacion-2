@@ -1,0 +1,16 @@
+.normal .selected .rotated{
+	padding:20px;
+	margin: 20px;
+}
+
+.normal{
+	background-color: #D1D1D1;
+}
+
+.selected{
+	background-color: #00FFFF;
+}
+
+.rotated{
+	background-color: #00FF00;
+}

@@ -1,0 +1,44 @@
+.matrix_item_white{
+	background-color: #D1D1D1;
+}
+
+.matrix_item_white_true{
+	background-color: #FFFFFF;
+}
+
+.matrix_item_yellow{
+	background-color: yellow;
+}
+
+.matrix_item_blue{
+	background-color: blue;
+}
+
+.matrix_item_red{
+	background-color: red;
+}
+
+.matrix_item_green{
+	background-color: green;
+}
+
+.matrix_item_orange{
+	background-color: orange;
+}
+
+.matrix_item_purple{
+	background-color: purple;
+}
+
+.matrix_item_cyan{
+	background-color: #652436;
+}
+
+.matrix_item_brown{
+	background-color: #505050;
+}
+
+.matrix_item_white_true, .matrix_item_white, .matrix_item_yellow, .matrix_item_blue, .matrix_item_red, .matrix_item_green, .matrix_item_orange, .matrix_item_purple, .matrix_item_cyan, .matrix_item_brown{
+	margin: 20px;
+	padding: 10px;
+}
